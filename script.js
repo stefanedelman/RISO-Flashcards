@@ -638,6 +638,75 @@ function move(delta, options = {}) {
   goToIndex(nextIndex, direction, options);
 }
 
+function moveCategory(delta) {
+  if (!Array.isArray(data) || data.length === 0) return;
+
+  const currentCategoryIndex = data.findIndex((cat) => cat.name === selectedCategoryName);
+  const baseIndex = currentCategoryIndex >= 0 ? currentCategoryIndex : 0;
+  const nextCategoryIndex = (baseIndex + delta + data.length) % data.length;
+  const nextCategoryName = data[nextCategoryIndex]?.name;
+
+  if (!nextCategoryName) return;
+  loadCategoryByName(nextCategoryName, true);
+  statusText.textContent = `Kategorija: ${nextCategoryName} (promenjeno tastaturom)`;
+}
+
+function isTypingTarget(target) {
+  if (!(target instanceof HTMLElement)) return false;
+  const tagName = target.tagName;
+  return target.isContentEditable || tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
+}
+
+function handleKeyboardShortcuts(event) {
+  if (isTypingTarget(event.target)) return;
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    if (activeQuestions.length === 0 || isCardAnimating) return;
+    playCardChangeSound();
+    move(1);
+    return;
+  }
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    if (activeQuestions.length === 0 || isCardAnimating) return;
+    playCardChangeSound();
+    move(-1);
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    moveCategory(-1);
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    moveCategory(1);
+    return;
+  }
+
+  if (event.code === "Space" || event.key === " ") {
+    event.preventDefault();
+    toggleFlip();
+    return;
+  }
+
+  const lowerKey = event.key.toLowerCase();
+  if (lowerKey === "n") {
+    event.preventDefault();
+    markKnown(true);
+    return;
+  }
+
+  if (lowerKey === "m") {
+    event.preventDefault();
+    markKnown(false);
+  }
+}
+
 function toggleFlip() {
   if (activeQuestions.length === 0) return;
 
@@ -729,6 +798,8 @@ questionList?.addEventListener("click", (event) => {
   const direction = nextIndex > index ? 1 : -1;
   goToIndex(nextIndex, direction);
 });
+
+document.addEventListener("keydown", handleKeyboardShortcuts);
 
 setButtonsEnabled(false);
 initCategoryPicker();

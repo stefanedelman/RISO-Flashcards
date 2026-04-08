@@ -451,6 +451,17 @@ body {
   font-size: clamp(1rem, 1.8vw, 1.2rem);
 }
 
+.keyboard-help {
+  margin: 0.8rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--muted);
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed color-mix(in srgb, var(--line) 75%, white);
+  border-radius: 10px;
+  background: color-mix(in srgb, #ffffff 74%, #f2f5ea);
+}
+
 @media (max-width: 900px) {
   .app-shell {
     grid-template-columns: 1fr;
