@@ -1,0 +1,85 @@
+1. Koje su osnovne karakteristike Cloud servisa ?
+2. Koji su osnovni Cloud servisi koji se mogu zakupiti kod Cloud provajdera ?
+3. Definisati najmanje pet prednosti korišćenja Cloud infrastrukture i usluga.
+4. Definisati najmanje pet nedostataka korišćenja Cloud infrastrukture i usluga.
+5. Kojoj klasi Informacionih sistema pripada Cloud ? Objasniti zašto ?
+6. Definisati osnovne načine skaliranja Cloud infrastrukture i servisa.
+7. Koje su ključne karakteristike Cloud-a? Ukratko objasnite svaku karakteristiku.
+8. Koje su osnovne gradivne tehnologije Cloud okruženja.
+9. Navedite i objasnite Cloud servisne modele prema modelu usluga 
+10. Navedite i objasnite načine implementacije Cloud infrastrukture i usluga.
+11. Objasnite IaaS (prednosti, nedostaci, primer)
+12. Objasnite PaaS (prednosti, nedostaci, primer)
+13. Objasnite SaaS (prednosti, nedostaci, primer)
+14. Objasni Javnu Cloud infrastrukturu
+15. Objasni Privatnu Cloud infrastrukturu
+16. Objasni Hibridnu Cloud infrastrukturu
+17. Objasniti pojam Multi-Cloud infrastrukture
+18. Koji tipovi DC postoje ? Ukratko objasniti svaki tip i razlike izmedju njih.
+19. Objasniti tier kategorizaciju DC ?
+20. Objasniti Tire 1, Tire 2, Tire 3.
+21. Objasni princip rangiranja data centara u pogledu pouzdanosti i raspoloživosti?
+22. Objasni Tier klasifikaciju data centara u pogledu pouzdanosti i raspoloživosti i ukaži na razlike između pojedinih nivoa.
+23. Koji su osnovni infrastrukturni resursi data centra i čemu služe?
+24. Koja je uloga Compute, Networking i Storage sloja u funkcionisanju data centra i kako oni međusobno sarađuju?
+25. Objasniti pojam virtuelizacije i navesti koji se elementi infrastrukture data centra mogu virtuelizovati.
+26. Objasniti pojam virtuelizacije i njenu osnovnu ulogu u savremenim data centrima.
+27. Koje su tri osnovne komponente virtuelizacionog okruženja i koja je uloga svake od njih?
+28. Objasniti ulogu virtuelizacionog sloja i njegov odnos prema fizičkom hardveru i virtuelnim resursima.
+29. Kako virtuelizacioni sloj kontroliše i štiti pristup resursima host sistema?
+30. Na koji način se fizički resursi pretvaraju u virtuelne? Objasniti pojmove: sharing, aggregation, emulation i isolation.
+31. Šta se podrazumeva pod „managed execution“ (kontrolisano izvršavanje) i zašto je važan?
+32. Objasniti glavne funkcije virtualizacije
+33. Koji elementi infrastrukture data centra mogu biti virtuelizovani?
+34. Objasniti pojam serverske virtuelizacije.
+35. Objasniti ulogu hipervizora u serverskoj virtuelizaciji.
+36. Uporediti hosted i bare-metal hipervizore.
+37. Zašto bare-metal hipervizori imaju bolje performanse?
+38. Kako serverska virtuelizacija utiče na efikasnost data centra?
+39.Definisati pojmove: računar domaćin, računar gost i hipervizor.
+40. Koja je razlika između računara domaćina i računara gosta u virtuelizovanom okruženju?
+41. Objasniti ulogu hipervizora u upravljanju resursima i virtuelnim mašinama.
+42. Koje su dve osnovne arhitekture hipervizora i po čemu se razlikuju?
+43. Zašto nativni hipervizori imaju bolje performanse u odnosu na hostovane?
+44. Objasniti pojam Puna virtuelizacija (Full Virtualization)
+45. Objasniti hardverski podržanu virtuelizaciju
+46. Koji su osnovni ciljevi virtuelizacije?
+47. Koje su ključne prednosti serverske virtuelizacije u klasterskom okruženju?
+48. Na koji način klaster serverske virtuelizacije doprinosi visokoj dostupnosti, skalabilnosti i oporavku sistema nakon kvara?
+49. Objasniti arhitekturu klasterovanja hipervizora
+50. Objasniti arhitekturu klasterovanja virtuelnih servera
+51. Objasni arhitekturu instanci virtuelnih servera sa ravnomernim opterećenjem (Load Balanced Virtual Server Instances Architecture) 
+52. Objasniti pojam VM migracije i navesti osnovne vrste migracije virtuelnih mašina.
+53. Kako VM migracija doprinosi fleksibilnosti, visokoj dostupnosti i održavanju sistema bez prekida rada?
+54. Objasniti ulogu balansiranja opterećenja i High Availability (HA) mehanizama u klasteru serverske virtuelizacije.
+55. Objasniti koncept virtuelizacije desktop okruženja
+56. Navesti i ukratko objasniti osnovne vrste virtuelizacije aplikacija.
+57. Navesti i objasniti ključne karakteristike multitenant aplikacija i objasniti zašto su važne za skalabilnost, bezbednost i naplatu u SaaS sistemima.
+58. Objasniti pojam multitenant tehnologije i navesti osnovne vrste multi-tenant arhitektura, uz kratko objašnjenje njihovih prednosti i mana.
+59. Objasniti šta je SAN (Storage Area Network), a šta NAS (Network Attached Storage).
+60. Navesti tipične primene SAN i NAS storage sistema i objasniti u kojim situacijama se koristi jedan, a u kojim drugi.
+61. Šta su RAID pool i LUN i kako se koriste u SAN storage arhitekturi?
+62. Objasniti pojam Object Storage i navesti tipične oblasti njegove primene.
+63. Objasniti pojam Block Storage i navesti gde se najčešće koristi.
+64. Objasniti pojam File Storage i navesti tipične slučajeve njegove primene.
+65. Navesti i objasniti osnovne vrste RAID konfiguracija 
+66. Objasniti RAID1, RAID5 i RAID1+0 konfiguracije.
+67. Objasniti šta je virtualizacija skladišta podataka, kako se ostvaruje i koje prednosti donosi u pogledu upravljanja, migracije i skalabilnosti.
+68. Šta je Software-Defined Storage (SDS) i koji ključni problem rešava u odnosu na tradicionalne storage sisteme?
+69. Objasni razliku između Control Plane i Data Plane u SDS arhitekturi i njihove uloge.
+70. Zašto je razdvajanje Control Plane i Data Plane važno za dostupnost i otpornost sistema?
+71. Kako SDS obezbeđuje visoku dostupnost podataka bez oslanjanja na klasični RAID?
+72. Šta je storage pool u SDS-u i kako omogućava fleksibilno upravljanje resursima?
+73. Na koji način SDS omogućava skaliranje sistema (scale-out) i koje su prednosti tog pristupa?
+74. Koja je uloga CRUSH algoritma u Ceph arhitekturi i kako se razlikuje od tradicionalnog pristupa sa centralnim metadata serverom?
+75. Kako Ceph obezbeđuje skalabilnost i otpornost na kvarove u distribuiranom okruženju?
+76. Šta je vSAN cluster i kako lokalni diskovi ESXi hostova postaju zajednički storage?
+77. Objasni koncept Storage Policy Based Management (SPBM) i njegov značaj u vSAN-u.
+78. Kako vSAN obezbeđuje fault tolerance (npr. FTT, RAID tipovi, witness komponenta)?
+79. Šta je Cloud Storage Virtualization i koji problem rešava u multi-cloud i hibridnim okruženjima?
+80. Kako Cloud Storage Virtualization omogućava korisnicima da vide jedinstven storage, iako su podaci raspoređeni na više cloud platformi?
+81. Koja je razlika između Cloud Storage Virtualization i Software-Defined Storage (SDS)?
+82. Koja je uloga Cloud Gateway-a u povezivanju on-premise sistema i cloud storage-a?
+83. Objasni koncept hibridnog cloud storage-a i način na koji se podaci raspoređuju između lokalnog i cloud skladišta.
+84. Objasni kako multi-cloud storage omogućava jedinstven pristup podacima kroz više cloud provajdera i koja je uloga globalnog namespace-a.
+85. Koji su tipični use-case-ovi za Cloud Storage Virtualization ?

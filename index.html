@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcards Vezbanje</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-shape shape-a"></div>
+  <div class="bg-shape shape-b"></div>
+
+  <main class="app-shell">
+    <section class="panel panel-left">
+      <h1>RISO kartice 2026</h1>
+      <p class="subtitle">Izaberi kategoriju i vezbaj pitanja kroz kartice.</p>
+
+      <div class="category-heading">
+        <h2>Kategorije</h2>
+        <p>Klik na kategoriju odmah pokrece pitanja.</p>
+      </div>
+
+      <div id="categoryPicker" class="category-picker" aria-label="Izbor kategorije"></div>
+
+      <div class="row">
+        <button id="shuffleBtn" class="btn btn-ghost" disabled>Promesaj</button>
+      </div>
+
+      <div class="stats">
+        <div><span id="totalCount">0</span><small>ukupno</small></div>
+        <div><span id="knownCount">0</span><small>savladano</small></div>
+        <div><span id="currentIndex">0/0</span><small>pozicija</small></div>
+      </div>
+
+      <div class="progress-wrap" aria-hidden="true">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <p id="statusText" class="status">Spremno za start.</p>
+    </section>
+
+    <section class="panel panel-right">
+      <div class="practice-layout">
+        <div class="practice-main">
+          <div class="card-stage">
+            <div id="cardMotion" class="card-motion">
+              <img id="correctStamp" class="correct-stamp" src="correct.png" alt="" aria-hidden="true">
+              <img id="wrongStamp" class="wrong-stamp" src="wrong.png" alt="" aria-hidden="true">
+              <div id="flashcard" class="flashcard" tabindex="0" role="button" aria-label="Flash kartica">
+                <div class="card-face card-front">
+                  <p class="face-label">PITANJE</p>
+                  <h2 id="questionText">Izaberi kategoriju sa leve strane.</h2>
+                </div>
+                <div class="card-face card-back">
+                  <p class="face-label">ODGOVOR</p>
+                  <p id="answerText">Odgovor ce se prikazati ovde nakon pokretanja.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="flipBtn" class="btn btn-primary" disabled>
+              <span class="btn-icon" aria-hidden="true">&#8635;</span>
+              <span>Okreni karticu</span>
+            </button>
+            <button id="prevBtn" class="btn" disabled>
+              <span class="btn-icon" aria-hidden="true">&#9664;</span>
+              <span>Prethodna</span>
+            </button>
+            <button id="nextBtn" class="btn" disabled>
+              <span class="btn-icon" aria-hidden="true">&#9654;</span>
+              <span>Sledeca</span>
+            </button>
+          </div>
+
+          <div class="controls">
+            <button id="knowBtn" class="btn btn-success" disabled>
+              <span class="btn-icon" aria-hidden="true">&#10003;</span>
+              <span>Znam</span>
+            </button>
+            <button id="repeatBtn" class="btn btn-warn" disabled>
+              <span class="btn-icon" aria-hidden="true">&#10005;</span>
+              <span>Ne znam</span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="question-list-panel" aria-label="Lista pitanja">
+          <h3>Pitanja u grupi</h3>
+          <ul id="questionList" class="question-list"></ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
