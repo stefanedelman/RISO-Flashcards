@@ -454,6 +454,7 @@ body {
 
 #answerText {
   font-size: clamp(1rem, 1.8vw, 1.2rem);
+  white-space: pre-line;
 }
 
 .keyboard-help {

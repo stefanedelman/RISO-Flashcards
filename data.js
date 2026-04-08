@@ -19,12 +19,12 @@
                 {
                     "id": 3,
                     "question": "Definisati najmanje pet prednosti korišćenja Cloud infrastrukture i usluga.",
-                    "answer": "Prednosti su: 1) niži početni troškovi (nema velike kupovine hardvera), 2) skalabilnost na zahtev, 3) brže puštanje servisa u rad, 4) visoka dostupnost i geografska redundantnost, 5) model plaćanja po potrošnji, 6) lakše održavanje jer provajder preuzima deo operativnih poslova."
+                    "answer": "0) Jednostavnost\n\n1) Manje brige — fokus na primarnu delatnost\n2) Uvek u korak sa tehnološkim napretkom\n3) Plaćanje po utrošku\n4) Brže do potrebnog servisa ili resursa\n5) Mogućnost brze promene količine resursa\n6) Veća dostupnost-pouzdanost\n7) Veći stepen bezbednosti"
                 },
                 {
                     "id": 4,
                     "question": "Definisati najmanje pet nedostataka korišćenja Cloud infrastrukture i usluga.",
-                    "answer": "Nedostaci uključuju: 1) zavisnost od internet konekcije i provajdera, 2) rizik vendor lock-in efekta, 3) izazove usklađenosti sa regulativom i lokacijom podataka, 4) manju direktnu kontrolu nad infrastrukturom, 5) nepredvidive troškove bez dobrog monitoringa, 6) potencijalne bezbednosne i privatnosne rizike ako je konfiguracija loša."
+                    "answer": "0) Nepoznato, “gubitak” kontrole\n1) Transparentnost\n2) Kontrola\n3) Bezbednost, regulativa\n4) Varijabilnost performansi — “zahtevne komšije”\n5) Otkaz sistema (a bekapa nema (ili ima ???))\n6) Gubitak zaposlenja"
                 },
                 {
                     "id": 5,
