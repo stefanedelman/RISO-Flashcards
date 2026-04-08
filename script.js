@@ -730,14 +730,6 @@ questionList?.addEventListener("click", (event) => {
   goToIndex(nextIndex, direction);
 });
 
-flashcard.addEventListener("click", toggleFlip);
-flashcard.addEventListener("keydown", (event) => {
-  if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    toggleFlip();
-  }
-});
-
 setButtonsEnabled(false);
 initCategoryPicker();
 const restored = restoreProgress();

@@ -406,7 +406,7 @@ body {
   border-radius: 18px;
   transform-style: preserve-3d;
   transition: transform 420ms cubic-bezier(.2,.72,.2,1);
-  cursor: pointer;
+  cursor: default;
 }
 
 .flashcard.is-flipped {
