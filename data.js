@@ -29,7 +29,7 @@
                 {
                     "id": 5,
                     "question": "Kojoj klasi Informacionih sistema pripada Cloud ? Objasniti zašto ?",
-                    "answer": " Cloud pripada klasi HTC (High Throughput Computing) sistema, jer je cilj obrada velikog broja korisničkih zahteva/transakcija u vremenu kroz distribuiranu i skalabilnu infrastrukturu (a ne HPC fokus na maksimalnim performansama za jedan proračun)."
+                    "answer": " Cloud pripada klasi HTC (High Throughput Computing) sistema, jer je cilj obrada velikog broja korisničkih zahteva/transakcija u vremenu kroz distribuiranu i skalabilnu infrastrukturu."
                 },
                 {
                     "id": 6,
@@ -39,7 +39,7 @@
                 {
                     "id": 7,
                     "question": "Koje su ključne karakteristike Cloud-a? Ukratko objasnite svaku karakteristiku.",
-                    "answer": "Ključne karakteristike (NIST): 1) on-demand self-service - korisnik sam brzo aktivira resurse; 2) broad network access - pristup preko standardnih mrežnih protokola; 3) resource pooling - deljeni resursi za više korisnika; 4) rapid elasticity - brzo prilagođavanje kapaciteta; 5) measured service - potrošnja se meri i naplaćuje po korišćenju."
+                    "answer": "Ključne karakteristike: 1) on-demand self-service - korisnik sam brzo aktivira resurse; 2) broad network access - pristup preko standardnih mrežnih protokola; 3) resource pooling - deljeni resursi za više korisnika; 4) rapid elasticity - brzo prilagođavanje kapaciteta; 5) measured service - potrošnja se meri i naplaćuje po korišćenju."
                 },
                 {
                     "id": 8,
