@@ -65,6 +65,11 @@ body {
   padding: 1rem;
 }
 
+.panel-right {
+  display: flex;
+  flex-direction: column;
+}
+
 .panel-left h1 {
   margin: 0;
   font: 400 1.8rem "Archivo Black", sans-serif;
@@ -452,14 +457,46 @@ body {
 }
 
 .keyboard-help {
-  margin: 0.8rem 0 0;
-  font-size: 0.84rem;
-  line-height: 1.45;
-  color: var(--muted);
-  padding: 0.55rem 0.7rem;
-  border: 1px dashed color-mix(in srgb, var(--line) 75%, white);
-  border-radius: 10px;
-  background: color-mix(in srgb, #ffffff 74%, #f2f5ea);
+  margin: 0.9rem 0 0;
+  padding: 0.62rem 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, white);
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(242, 247, 236, 0.88));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  align-items: center;
+  color: color-mix(in srgb, var(--muted) 88%, #304245);
+  font-size: 0.81rem;
+  line-height: 1.32;
+  opacity: 0.76;
+}
+
+.keyboard-help-label {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-right: 0.14rem;
+}
+
+.keyboard-help-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.kbd-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.32rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, white);
+  background: linear-gradient(180deg, #ffffff, #edf2e7);
+  color: #415157;
+  font-weight: 700;
+  font-size: 0.74rem;
 }
 
 @media (max-width: 900px) {
