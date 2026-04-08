@@ -19,7 +19,7 @@
                 {
                     "id": 3,
                     "question": "Definisati najmanje pet prednosti korišćenja Cloud infrastrukture i usluga.",
-                    "answer": "0) Jednostavnost\n\n1) Manje brige — fokus na primarnu delatnost\n2) Uvek u korak sa tehnološkim napretkom\n3) Plaćanje po utrošku\n4) Brže do potrebnog servisa ili resursa\n5) Mogućnost brze promene količine resursa\n6) Veća dostupnost-pouzdanost\n7) Veći stepen bezbednosti"
+                    "answer": "0) Jednostavnost\n1) Manje brige — fokus na primarnu delatnost\n2) Uvek u korak sa tehnološkim napretkom\n3) Plaćanje po utrošku\n4) Brže do potrebnog servisa ili resursa\n5) Mogućnost brze promene količine resursa\n6) Veća dostupnost-pouzdanost\n7) Veći stepen bezbednosti"
                 },
                 {
                     "id": 4,
@@ -59,7 +59,7 @@
                 {
                     "id": 11,
                     "question": "Objasnite IaaS (prednosti, nedostaci, primer)",
-                    "answer": "IaaS je model u kome se zakupljuju virtuelni serveri, mreža i skladište. Prednosti: fleksibilnost, brza isporuka resursa, plaćanje po potrošnji. Nedostaci: korisnik i dalje održava OS, bezbednosne zakrpe i deo operacija. Primeri: AWS EC2, Azure Virtual Machines, Google Compute Engine."
+                    "answer": "IaaS je model u kome se zakupljuju virtuelni serveri, mreža i skladište. Prednosti: fleksibilnost, brza isporuka resursa, plaćanje po potrošnji. Nedostaci: zavisnost od cloud providera, klijent je odgovoran za odrzavanje backup podatka. Primeri: AWS EC2, Azure Virtual Machines, Google Compute Engine."
                 },
                 {
                     "id": 12,
