@@ -100,7 +100,7 @@
                 {
                     "id": 18,
                     "question": "Koji tipovi DC postoje ? Ukratko objasniti svaki tip i razlike izmedju njih.",
-                    "answer": "Osnovni tipovi su: enterprise/on-premise DC (u vlasništvu firme), colocation DC (firma iznajmljuje prostor, napajanje i mrežu), managed/hosted DC (provajder upravlja infrastrukturom), cloud data centri (resursi kao usluga) i edge/micro DC (manji centri blizu korisnika). Razlika je u vlasništvu, nivou kontrole, trošku i lokaciji resursa."
+                    "answer": "Korporativni i Internet Data Centri. Korporativni su vlasnistvo privatnih kompanija, državnih i javnih institucija ili organizacija i služe za smeštanje servera sa aplikacijama i bazama podataka za potrebe tihkompanija, odnosno institucija. Internet Data centri su u vlasništvu telekomunikacionih operatora ili internet servis provajdera (ISP, Cloud provajdera), koji ujedno obavalja i poslove održavanja Data centra."
                 },
                 {
                     "id": 19,
