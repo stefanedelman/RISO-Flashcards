@@ -177,7 +177,7 @@ window.FLASHCARD_DATA =
         {
           "id": 32,
           "question": "Objasniti glavne funkcije virtualizacije",
-          "answer": "Glavne funkcije virtualizacije su: apstrakcija hardvera, konsolidacija servera, izolacija opterećenja, dinamička raspodela resursa, migracija VM-ova, brzo provisioning okruženja i podrška visokoj dostupnosti/oporavku."
+          "answer": "Sharing (deljenje) – jedan fizički resurs deli se na više virtuelnih Aggregation (agregacija) – više fizičkih resursa se kombinuje u jedan virtuelni resurs Emulation (emulacija) – hardver se emulira softverski (softverski se oponaša drugi tip hardvera ili uređaja), omogućavajući pokretanje sistema ili aplikacija nezavisno od stvarne fizičke platforme Isolation (izolacija) – virtuelni resursi su međusobno odvojeni i izolovani"
         },
         {
           "id": 33,
