@@ -308,7 +308,7 @@ window.FLASHCARD_DATA =
         {
           "id": 57,
           "question": "Navesti i objasniti ključne karakteristike multitenant aplikacija i objasniti zašto su važne za skalabilnost, bezbednost i naplatu u SaaS sistemima.",
-          "answer": "Ključne karakteristike su: deljena aplikaciona instanca za više tenant-a, logička izolacija podataka, tenant-aware autentikacija/autorizacija, konfigurabilnost po tenant-u, metering i praćenje potrošnje, centralna nadogradnja bez prekida za sve korisnike. Važne su jer omogućavaju horizontalnu skalabilnost, zaštitu podataka između korisnika i preciznu naplatu po korišćenju."
+          "answer": "Multitenant aplikacije dele infrastrukturu između korisnika uz izolaciju podataka, omogućavajući efikasno skaliranje, granularnu kontrolu pristupa i naplatu po korisniku/potrošnji."
         },
         {
           "id": 58,
@@ -380,7 +380,7 @@ window.FLASHCARD_DATA =
         {
           "id": 69,
           "question": "Objasni razliku između Control Plane i Data Plane u SDS arhitekturi i njihove uloge.",
-          "answer": "Control Plane upravlja politikama, konfiguracijom, raspodelom i nadzorom sistema, dok Data Plane izvršava stvarni tok podataka. U SDS-u Control Plane donosi odluke, a Data Plane ih sprovodi nad podacima."
+          "answer": "Control Plane upravlja politikama, alokacijom i konfiguracijom skladištenja, dok Data Plane obavlja stvarni prenos i čuvanje podataka."
         },
         {
           "id": 70,
@@ -390,7 +390,7 @@ window.FLASHCARD_DATA =
         {
           "id": 71,
           "question": "Kako SDS obezbeđuje visoku dostupnost podataka bez oslanjanja na klasični RAID?",
-          "answer": "SDS obezbeđuje visoku dostupnost putem distribuirane replikacije/erasure coding-a, samoisceljenja, automatskog rebalansa i rasporeda kopija po različitim čvorovima/rack-ovima/zonama, umesto oslanjanja samo na lokalni RAID u jednom uređaju."
+          "answer": "SDS koristi softversku replikaciju podataka preko više nezavisnih čvorova (nodova) umesto hardverske redundancije diskova unutar jednog RAID niza."
         },
         {
           "id": 72,
@@ -405,7 +405,7 @@ window.FLASHCARD_DATA =
         {
           "id": 74,
           "question": "Koja je uloga CRUSH algoritma u Ceph arhitekturi i kako se razlikuje od tradicionalnog pristupa sa centralnim metadata serverom?",
-          "answer": "CRUSH u Ceph-u deterministički računa gde će objekti biti smešteni, bez centralnog metadata servera za putanju podataka. Za razliku od tradicionalnog centralnog pristupa, ovo smanjuje uska grla i omogućava bolju horizontalnu skalabilnost."
+          "answer": "CRUSH algoritam računa lokaciju podataka matematički, bez centralnog metadata servera, čime eliminiše single point of failure i usko grlo pri skaliranju."
         },
         {
           "id": 75,
@@ -415,7 +415,7 @@ window.FLASHCARD_DATA =
         {
           "id": 76,
           "question": "Šta je vSAN cluster i kako lokalni diskovi ESXi hostova postaju zajednički storage?",
-          "answer": "vSAN cluster je VMware distribuirani storage gde lokalni diskovi ESXi hostova formiraju zajednički datastore. vSAN softver agregira te diskove i izlaže ih kao jedinstven storage svim hostovima u klasteru."
+          "answer": "vSAN cluster je grupa ESXi hostova sa omogućenim vSAN-om koji udružuju svoje lokalne diskove u jedan deljeni distribuirani datastore, replicirajući podatke međusobno preko mreže."
         },
         {
           "id": 77,
@@ -425,7 +425,7 @@ window.FLASHCARD_DATA =
         {
           "id": 78,
           "question": "Kako vSAN obezbeđuje fault tolerance?",
-          "answer": "vSAN fault tolerance postiže kroz FTT politiku, mehanizme RAID1 mirroring ili RAID5/6 erasure coding i witness komponentu koja učestvuje u quorum/metadata logici, kako bi podaci ostali dostupni pri kvaru čvorova."
+          "answer": "vSAN replicira podatke na više hostova prema storage polisi (FTT), tako da ispad jednog ili više hostova ne uzrokuje gubitak podataka."
         }
       ]
     },
@@ -451,7 +451,7 @@ window.FLASHCARD_DATA =
         {
           "id": 82,
           "question": "Koja je uloga Cloud Gateway-a u povezivanju on-premise sistema i cloud storage-a?",
-          "answer": "Cloud Gateway povezuje on-premise sisteme sa cloud skladištem, prevodi protokole, kešira lokalno podatke, primenjuje bezbednosne politike i omogućava transparentan pristup cloud kapacitetima bez velikih promena aplikacija."
+          "answer": "Cloud Gateway je posrednik koji povezuje lokalnu infrastrukturu sa cloud storage-om, omogućavajući transparentan pristup, keširanje, enkripciju i sinhronizaciju podataka između okruženja."
         },
         {
           "id": 83,
@@ -466,7 +466,7 @@ window.FLASHCARD_DATA =
         {
           "id": 85,
           "question": "Koji su tipični use-case-ovi za Cloud Storage Virtualization?",
-          "answer": "Tipični use-case-ovi su: centralizovan pristup podacima kroz više cloud-ova, disaster recovery i backup, migracije između provajdera bez velikog zastoja, data sovereignty/compliance scenariji, cloud bursting i optimizacija troškova performansi po workload-u."
+          "answer": "Disaster recovery, hibridni cloud, migracija podataka, arhiviranje, burst kapacitet, centralizovano upravljanje storage-om across multiple cloud provajdera."
         }
       ]
     }

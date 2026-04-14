@@ -32,10 +32,7 @@ const BASE_STORAGE_KEY = "flashcardsProgressV1";
 const quizDefinitions = [];
 
 function stripParentheses(text) {
-  return String(text || "")
-    .replace(/[()]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return text
 }
 
 function normalizeQuestion(question) {
