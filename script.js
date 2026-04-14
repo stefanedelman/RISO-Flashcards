@@ -26,96 +26,28 @@ const enterQuizBtn = document.getElementById("enterQuizBtn");
 const backToMenuBtn = document.getElementById("backToMenuBtn");
 const appTitle = document.getElementById("appTitle");
 const appSubtitle = document.getElementById("appSubtitle");
-const answerModeShortBtn = document.getElementById("answerModeShortBtn");
-const answerModeLongBtn = document.getElementById("answerModeLongBtn");
 
 const rawFlashcardData = window.FLASHCARD_DATA || null;
 const BASE_STORAGE_KEY = "flashcardsProgressV1";
 const quizDefinitions = [];
 
-const ANSWER_MODE_SHORT = "short";
-const ANSWER_MODE_LONG = "long";
-
-function sanitizeSegment(text) {
+function stripParentheses(text) {
   return String(text || "")
-    .replace(/\([^)]*\)/g, "")
-    .replace(/["“”]/g, "")
+    .replace(/[()]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-}
-
-function shrinkPhrase(text) {
-  let out = sanitizeSegment(text)
-    .replace(/^[-*]\s*/, "")
-    .replace(/^\d+[.)]\s*/, "")
-    .replace(/^\s*[a-z]\)\s*/i, "")
-    .replace(/^\s*[:,-]\s*/, "")
-    .trim();
-
-  out = out.replace(/\s*[-]\s*/g, " - ").replace(/\s+/g, " ").trim();
-  out = out.replace(/[.;,]+$/, "");
-
-  if (out.length > 170) {
-    const cut = out.slice(0, 170);
-    const lastSpace = cut.lastIndexOf(" ");
-    out = (lastSpace > 70 ? cut.slice(0, lastSpace) : cut).trim();
-  }
-
-  return out;
-}
-
-function buildConciseAnswer(answer) {
-  const raw = String(answer || "").trim();
-  if (!raw) {
-    return "Kratak odgovor nije unet.";
-  }
-
-  const listLines = raw
-    .split(/\r?\n/)
-    .map((line) => shrinkPhrase(line))
-    .filter(Boolean);
-
-  if (listLines.length >= 2) {
-    return listLines.slice(0, 5).join("; ");
-  }
-
-  const flattened = sanitizeSegment(raw);
-  const sentenceParts = flattened
-    .split(/(?<=[.!?])\s+/)
-    .map((part) => shrinkPhrase(part))
-    .filter(Boolean);
-
-  if (sentenceParts.length === 0) {
-    return "Kratak odgovor nije unet.";
-  }
-
-  if (sentenceParts.length === 1) {
-    return sentenceParts[0];
-  }
-
-  const first = sentenceParts[0];
-  if (first.length < 55) {
-    return `${first}; ${sentenceParts[1]}`;
-  }
-
-  return first;
 }
 
 function normalizeQuestion(question) {
   const originalLong = typeof question.long_answer === "string"
     ? question.long_answer
     : question.answer;
-  const longAnswer = String(originalLong || "").trim();
-  const providedShort = typeof question.short_answer === "string"
-    ? question.short_answer.trim()
-    : "";
-  const shortAnswer = providedShort || buildConciseAnswer(longAnswer);
+  const longAnswer = stripParentheses(originalLong);
 
   return {
     ...question,
     answer: longAnswer,
     long_answer: longAnswer,
-    short_answer: shortAnswer,
   };
 }
 
@@ -171,43 +103,11 @@ let knownIds = new Set();
 let maybeIds = new Set();
 let unknownIds = new Set();
 let selectedCategoryName = "";
-let answerDisplayMode = ANSWER_MODE_SHORT;
 let feedbackAudioContext = null;
 let knowSound = null;
 let errorSound = null;
 let cardChangeSound = null;
 let isCardAnimating = false;
-
-function syncAnswerModeButtons() {
-  if (answerModeShortBtn) {
-    const isShort = answerDisplayMode === ANSWER_MODE_SHORT;
-    answerModeShortBtn.classList.toggle("is-active", isShort);
-    answerModeShortBtn.setAttribute("aria-pressed", String(isShort));
-  }
-
-  if (answerModeLongBtn) {
-    const isLong = answerDisplayMode === ANSWER_MODE_LONG;
-    answerModeLongBtn.classList.toggle("is-active", isLong);
-    answerModeLongBtn.setAttribute("aria-pressed", String(isLong));
-  }
-}
-
-function setAnswerDisplayMode(mode, shouldPersist = true) {
-  if (mode !== ANSWER_MODE_SHORT && mode !== ANSWER_MODE_LONG) {
-    return;
-  }
-
-  answerDisplayMode = mode;
-  syncAnswerModeButtons();
-
-  if (activeQuestions.length > 0) {
-    answerText.textContent = getAnswerText(activeQuestions[index]);
-  }
-
-  if (shouldPersist) {
-    saveProgress();
-  }
-}
 
 function getQuizQuestionCount(quiz) {
   if (!quiz?.source) return 0;
@@ -287,12 +187,11 @@ function enterSelectedQuiz() {
     appTitle.textContent = quiz.title;
   }
   if (appSubtitle) {
-    appSubtitle.textContent = "Izaberi kategoriju i koristi Kratko/Dugo toggle za prikaz odgovora.";
+    appSubtitle.textContent = "Izaberi kategoriju i vezbaj pitanja kroz kartice.";
   }
 
   resetPracticeState();
   setButtonsEnabled(false);
-  syncAnswerModeButtons();
 
   if (startScreen) {
     startScreen.classList.add("is-hidden");
@@ -564,7 +463,6 @@ function saveProgress() {
   const snapshot = {
     selectedCategory: selectedCategoryName || null,
     activeCategory: activeCategory?.name ?? null,
-    answerDisplayMode,
     questionOrder: activeQuestions.map((q) => q.id),
     index,
     knownIds: [...knownIds],
@@ -594,11 +492,6 @@ function restoreProgress() {
   if (saved.selectedCategory && data.some((cat) => cat.name === saved.selectedCategory)) {
     selectedCategoryName = saved.selectedCategory;
   }
-
-  if (saved.answerDisplayMode === ANSWER_MODE_SHORT || saved.answerDisplayMode === ANSWER_MODE_LONG) {
-    answerDisplayMode = saved.answerDisplayMode;
-  }
-  syncAnswerModeButtons();
 
   if (!saved.activeCategory) {
     renderCategoryPicker();
@@ -676,16 +569,7 @@ function setButtonsEnabled(enabled) {
 }
 
 function getAnswerText(questionObj) {
-  const longAnswer = String(questionObj.long_answer || questionObj.answer || "").trim();
-  const shortAnswer = String(questionObj.short_answer || "").trim();
-
-  if (answerDisplayMode === ANSWER_MODE_LONG && longAnswer) {
-    return longAnswer;
-  }
-
-  if (answerDisplayMode === ANSWER_MODE_SHORT && shortAnswer) {
-    return shortAnswer;
-  }
+  const longAnswer = stripParentheses(questionObj.long_answer || questionObj.answer || "");
 
   if (longAnswer) {
     return longAnswer;
@@ -755,7 +639,7 @@ function renderCard() {
   questionText.textContent = `${q.id}. ${q.question}`;
   answerText.textContent = getAnswerText(q);
   flashcard.classList.remove("is-flipped");
-  statusText.textContent = `Kategorija: ${activeCategory.name} | odgovor: ${answerDisplayMode === ANSWER_MODE_SHORT ? "kratko" : "dugo"}`;
+  statusText.textContent = `Kategorija: ${activeCategory.name}`;
   updateStats();
   renderQuestionList();
 }
@@ -1047,18 +931,6 @@ function handleKeyboardShortcuts(event) {
   if (lowerKey === "m") {
     event.preventDefault();
     markKnown(false);
-    return;
-  }
-
-  if (lowerKey === "k") {
-    event.preventDefault();
-    setAnswerDisplayMode(ANSWER_MODE_SHORT);
-    return;
-  }
-
-  if (lowerKey === "l") {
-    event.preventDefault();
-    setAnswerDisplayMode(ANSWER_MODE_LONG);
   }
 }
 
@@ -1177,12 +1049,6 @@ flipBtn.addEventListener("click", toggleFlip);
 knowBtn.addEventListener("click", () => markKnown(true));
 maybeBtn.addEventListener("click", markMaybe);
 repeatBtn.addEventListener("click", () => markKnown(false));
-answerModeShortBtn?.addEventListener("click", () => {
-  setAnswerDisplayMode(ANSWER_MODE_SHORT);
-});
-answerModeLongBtn?.addEventListener("click", () => {
-  setAnswerDisplayMode(ANSWER_MODE_LONG);
-});
 questionList?.addEventListener("click", (event) => {
   const target = event.target.closest(".question-item");
   if (!target) return;
@@ -1199,7 +1065,6 @@ questionList?.addEventListener("click", (event) => {
 document.addEventListener("keydown", handleKeyboardShortcuts);
 
 renderQuizPicker();
-syncAnswerModeButtons();
 
 if (quizDefinitions.length > 0) {
   selectQuiz(selectedQuizId || quizDefinitions[0].id);
