@@ -102,6 +102,7 @@ let index = 0;
 let knownIds = new Set();
 let maybeIds = new Set();
 let unknownIds = new Set();
+let categoryProgressByName = {};
 let selectedCategoryName = "";
 let feedbackAudioContext = null;
 let knowSound = null;
@@ -171,6 +172,7 @@ function resetPracticeState() {
   knownIds = new Set();
   maybeIds = new Set();
   unknownIds = new Set();
+  categoryProgressByName = {};
   selectedCategoryName = "";
   isCardAnimating = false;
 }
@@ -204,7 +206,7 @@ function enterSelectedQuiz() {
   const restored = restoreProgress();
 
   if ((!restored || activeQuestions.length === 0) && data.length > 0) {
-    loadCategoryByName(selectedCategoryName || data[0].name, true);
+    loadCategoryByName(selectedCategoryName || data[0].name, false);
   }
 
   updateStats();
@@ -459,15 +461,79 @@ function renderCategoryPicker() {
     .join("");
 }
 
+function initializeCategoryState(category) {
+  activeQuestions = [...category.questions];
+  index = 0;
+  knownIds = new Set();
+  maybeIds = new Set();
+  unknownIds = new Set();
+}
+
+function applyCategoryState(category, savedState) {
+  const byId = new Map(category.questions.map((q) => [q.id, q]));
+  const ordered = [];
+  const seenIds = new Set();
+
+  if (Array.isArray(savedState?.questionOrder)) {
+    savedState.questionOrder.forEach((id) => {
+      const question = byId.get(id);
+      if (!question || seenIds.has(id)) {
+        return;
+      }
+
+      seenIds.add(id);
+      ordered.push(question);
+    });
+  }
+
+  const missing = category.questions.filter((q) => !seenIds.has(q.id));
+  activeQuestions = [...ordered, ...missing];
+
+  if (activeQuestions.length === 0) {
+    index = 0;
+    knownIds = new Set();
+    maybeIds = new Set();
+    unknownIds = new Set();
+    return;
+  }
+
+  const maxIndex = activeQuestions.length - 1;
+  index = Number.isInteger(savedState?.index)
+    ? Math.max(0, Math.min(savedState.index, maxIndex))
+    : 0;
+
+  const validIds = new Set(activeQuestions.map((q) => q.id));
+  const restoredKnown = Array.isArray(savedState?.knownIds)
+    ? savedState.knownIds.filter((id) => validIds.has(id))
+    : [];
+  knownIds = new Set(restoredKnown);
+
+  const restoredUnknown = Array.isArray(savedState?.unknownIds)
+    ? savedState.unknownIds.filter((id) => validIds.has(id) && !knownIds.has(id))
+    : [];
+  unknownIds = new Set(restoredUnknown);
+
+  const restoredMaybe = Array.isArray(savedState?.maybeIds)
+    ? savedState.maybeIds.filter((id) => validIds.has(id) && !knownIds.has(id) && !unknownIds.has(id))
+    : [];
+  maybeIds = new Set(restoredMaybe);
+}
+
 function saveProgress() {
+  if (activeCategory?.name) {
+    categoryProgressByName[activeCategory.name] = {
+      questionOrder: activeQuestions.map((q) => q.id),
+      index,
+      knownIds: [...knownIds],
+      maybeIds: [...maybeIds],
+      unknownIds: [...unknownIds],
+    };
+  }
+
   const snapshot = {
     selectedCategory: selectedCategoryName || null,
     activeCategory: activeCategory?.name ?? null,
-    questionOrder: activeQuestions.map((q) => q.id),
-    index,
-    knownIds: [...knownIds],
-    maybeIds: [...maybeIds],
-    unknownIds: [...unknownIds],
+    categoryProgress: categoryProgressByName,
   };
 
   try {
@@ -489,66 +555,48 @@ function restoreProgress() {
     return false;
   }
 
+  categoryProgressByName = typeof saved.categoryProgress === "object" && saved.categoryProgress !== null
+    ? saved.categoryProgress
+    : {};
+
+  if (
+    Object.keys(categoryProgressByName).length === 0
+    && typeof saved.activeCategory === "string"
+    && saved.activeCategory.length > 0
+    && (
+      Array.isArray(saved.questionOrder)
+      || Number.isInteger(saved.index)
+      || Array.isArray(saved.knownIds)
+      || Array.isArray(saved.maybeIds)
+      || Array.isArray(saved.unknownIds)
+    )
+  ) {
+    categoryProgressByName[saved.activeCategory] = {
+      questionOrder: Array.isArray(saved.questionOrder) ? saved.questionOrder : [],
+      index: Number.isInteger(saved.index) ? saved.index : 0,
+      knownIds: Array.isArray(saved.knownIds) ? saved.knownIds : [],
+      maybeIds: Array.isArray(saved.maybeIds) ? saved.maybeIds : [],
+      unknownIds: Array.isArray(saved.unknownIds) ? saved.unknownIds : [],
+    };
+  }
+
   if (saved.selectedCategory && data.some((cat) => cat.name === saved.selectedCategory)) {
     selectedCategoryName = saved.selectedCategory;
   }
 
-  if (!saved.activeCategory) {
-    renderCategoryPicker();
-
-    if (selectedCategoryName) {
-      loadCategoryByName(selectedCategoryName, true);
-    }
-
-    return true;
-  }
-
-  const category = data.find((cat) => cat.name === saved.activeCategory);
-  if (!category) {
-    return true;
-  }
-
-  selectedCategoryName = category.name;
-  activeCategory = category;
-  const byId = new Map(category.questions.map((q) => [q.id, q]));
-  const ordered = Array.isArray(saved.questionOrder)
-    ? saved.questionOrder.map((id) => byId.get(id)).filter(Boolean)
-    : [];
-  const missing = category.questions.filter((q) => !ordered.some((o) => o.id === q.id));
-  activeQuestions = [...ordered, ...missing];
-
-  if (activeQuestions.length === 0) {
-    index = 0;
-    knownIds = new Set();
-    maybeIds = new Set();
-    unknownIds = new Set();
-    return true;
-  }
-
-  const maxIndex = activeQuestions.length - 1;
-  index = Number.isInteger(saved.index) ? Math.max(0, Math.min(saved.index, maxIndex)) : 0;
-
-  const validIds = new Set(activeQuestions.map((q) => q.id));
-  const restoredKnown = Array.isArray(saved.knownIds)
-    ? saved.knownIds.filter((id) => validIds.has(id))
-    : [];
-  knownIds = new Set(restoredKnown);
-
-  const restoredUnknown = Array.isArray(saved.unknownIds)
-    ? saved.unknownIds.filter((id) => validIds.has(id) && !knownIds.has(id))
-    : [];
-  unknownIds = new Set(restoredUnknown);
-
-  const restoredMaybe = Array.isArray(saved.maybeIds)
-    ? saved.maybeIds.filter((id) => validIds.has(id) && !knownIds.has(id) && !unknownIds.has(id))
-    : [];
-  maybeIds = new Set(restoredMaybe);
-
   renderCategoryPicker();
-  setButtonsEnabled(true);
-  renderCard();
-  statusText.textContent = `Kategorija: ${activeCategory.name} (napredak ucitan)`;
-  saveProgress();
+
+  const preferredCategory = saved.activeCategory && data.some((cat) => cat.name === saved.activeCategory)
+    ? saved.activeCategory
+    : selectedCategoryName;
+
+  if (preferredCategory) {
+    loadCategoryByName(preferredCategory, false);
+    if (activeCategory) {
+      statusText.textContent = `Kategorija: ${activeCategory.name} (napredak ucitan)`;
+    }
+  }
+
   return true;
 }
 
@@ -823,11 +871,21 @@ function loadCategoryByName(categoryName, resetProgress = true) {
   }
 
   if (resetProgress) {
-    activeQuestions = [...activeCategory.questions];
-    index = 0;
-    knownIds = new Set();
-    maybeIds = new Set();
-    unknownIds = new Set();
+    initializeCategoryState(activeCategory);
+    categoryProgressByName[activeCategory.name] = {
+      questionOrder: activeQuestions.map((q) => q.id),
+      index,
+      knownIds: [...knownIds],
+      maybeIds: [...maybeIds],
+      unknownIds: [...unknownIds],
+    };
+  } else {
+    const savedState = categoryProgressByName[activeCategory.name];
+    if (savedState) {
+      applyCategoryState(activeCategory, savedState);
+    } else {
+      initializeCategoryState(activeCategory);
+    }
   }
 
   setButtonsEnabled(true);
@@ -853,7 +911,7 @@ function moveCategory(delta) {
   const nextCategoryName = data[nextCategoryIndex]?.name;
 
   if (!nextCategoryName) return;
-  loadCategoryByName(nextCategoryName, true);
+  loadCategoryByName(nextCategoryName, false);
   statusText.textContent = `Kategorija: ${nextCategoryName} (promenjeno tastaturom)`;
 }
 
@@ -1022,7 +1080,7 @@ categoryPicker?.addEventListener("click", (event) => {
   const categoryName = target.dataset.category;
   if (!categoryName) return;
 
-  loadCategoryByName(categoryName, true);
+  loadCategoryByName(categoryName, false);
 });
 
 shuffleBtn.addEventListener("click", () => {
