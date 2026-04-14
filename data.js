@@ -247,7 +247,7 @@ window.FLASHCARD_DATA =
         {
           "id": 46,
           "question": "Koji su osnovni ciljevi virtuelizacije?",
-          "answer": "Osnovni ciljevi virtuelizacije su: bolja iskorišćenost resursa, konsolidacija servera, izolacija aplikacija, fleksibilnost raspodele kapaciteta, smanjenje troškova, jednostavniji oporavak i brže skaliranje."
+          "answer": "1) Enkapsulacija; 2) Izolacija; 3) Particionisanje."
         },
         {
           "id": 47,
