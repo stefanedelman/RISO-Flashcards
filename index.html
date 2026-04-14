@@ -13,10 +13,27 @@
   <div class="bg-shape shape-a"></div>
   <div class="bg-shape shape-b"></div>
 
-  <main class="app-shell">
+  <section id="startScreen" class="start-screen" aria-label="Pocetni meni kvizova">
+    <div class="start-card">
+      <p class="start-kicker">RISO Flashcards</p>
+      <h1>Izaberi kviz</h1>
+      <p class="start-copy">Prvo odaberi kviz, pa zatim kategoriju pitanja za vezbanje.</p>
+      <div id="quizPicker" class="quiz-picker" aria-label="Izbor kviza"></div>
+      <button id="enterQuizBtn" class="btn btn-primary start-enter" type="button" disabled>Udji u kviz</button>
+    </div>
+  </section>
+
+  <main id="appShell" class="app-shell is-hidden">
     <section class="panel panel-left">
-      <h1>RISO kartice 2026</h1>
-      <p class="subtitle">Izaberi kategoriju i vezbaj pitanja kroz kartice.</p>
+      <h1 id="appTitle">RISO kartice 2026</h1>
+      <p id="appSubtitle" class="subtitle">Izaberi kategoriju i vezbaj pitanja kroz kartice.</p>
+
+      <div class="top-actions">
+        <button id="backToMenuBtn" class="btn btn-ghost btn-back" type="button">
+          <span class="btn-icon" aria-hidden="true">&#8592;</span>
+          <span>Nazad</span>
+        </button>
+      </div>
 
       <div class="category-heading">
         <h2>Kategorije</h2>
@@ -27,6 +44,12 @@
 
       <div class="row">
         <button id="shuffleBtn" class="btn btn-ghost" disabled>Promesaj</button>
+      </div>
+
+      <div class="answer-mode" role="group" aria-label="Prikaz odgovora">
+        <span class="answer-mode-label">Prikaz odgovora</span>
+        <button id="answerModeShortBtn" class="btn btn-ghost answer-mode-btn is-active" type="button" aria-pressed="true">Kratko</button>
+        <button id="answerModeLongBtn" class="btn btn-ghost answer-mode-btn" type="button" aria-pressed="false">Dugo</button>
       </div>
 
       <div class="stats">
@@ -82,6 +105,10 @@
               <span class="btn-icon" aria-hidden="true">&#10003;</span>
               <span>Znam</span>
             </button>
+            <button id="maybeBtn" class="btn btn-maybe" disabled>
+              <span class="btn-icon" aria-hidden="true">?</span>
+              <span>Mozda</span>
+            </button>
             <button id="repeatBtn" class="btn btn-warn" disabled>
               <span class="btn-icon" aria-hidden="true">&#10005;</span>
               <span>Ne znam</span>
@@ -101,8 +128,11 @@
         <span class="keyboard-help-item"><span class="kbd-key">&#8594;</span> sledeca</span>
         <span class="keyboard-help-item"><span class="kbd-key">&#8593;</span><span class="kbd-key">&#8595;</span> kategorije</span>
         <span class="keyboard-help-item"><span class="kbd-key">Space</span> okreni</span>
-        <span class="keyboard-help-item"><span class="kbd-key">N</span> tacno</span>
-        <span class="keyboard-help-item"><span class="kbd-key">M</span> netacno</span>
+        <span class="keyboard-help-item"><span class="kbd-key">B</span> znam</span>
+        <span class="keyboard-help-item"><span class="kbd-key">N</span> mozda</span>
+        <span class="keyboard-help-item"><span class="kbd-key">M</span> ne znam</span>
+        <span class="keyboard-help-item"><span class="kbd-key">K</span> kratko</span>
+        <span class="keyboard-help-item"><span class="kbd-key">L</span> dugo</span>
       </p>
     </section>
   </main>

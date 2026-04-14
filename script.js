@@ -4,6 +4,7 @@ const flipBtn = document.getElementById("flipBtn");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const knowBtn = document.getElementById("knowBtn");
+const maybeBtn = document.getElementById("maybeBtn");
 const repeatBtn = document.getElementById("repeatBtn");
 
 const flashcard = document.getElementById("flashcard");
@@ -18,9 +19,146 @@ const currentIndex = document.getElementById("currentIndex");
 const progressBar = document.getElementById("progressBar");
 const statusText = document.getElementById("statusText");
 const questionList = document.getElementById("questionList");
+const startScreen = document.getElementById("startScreen");
+const appShell = document.getElementById("appShell");
+const quizPicker = document.getElementById("quizPicker");
+const enterQuizBtn = document.getElementById("enterQuizBtn");
+const backToMenuBtn = document.getElementById("backToMenuBtn");
+const appTitle = document.getElementById("appTitle");
+const appSubtitle = document.getElementById("appSubtitle");
+const answerModeShortBtn = document.getElementById("answerModeShortBtn");
+const answerModeLongBtn = document.getElementById("answerModeLongBtn");
 
-const data = window.FLASHCARD_DATA?.categories ?? [];
-const STORAGE_KEY = "flashcardsProgressV1";
+const rawFlashcardData = window.FLASHCARD_DATA || null;
+const BASE_STORAGE_KEY = "flashcardsProgressV1";
+const quizDefinitions = [];
+
+const ANSWER_MODE_SHORT = "short";
+const ANSWER_MODE_LONG = "long";
+
+function sanitizeSegment(text) {
+  return String(text || "")
+    .replace(/\([^)]*\)/g, "")
+    .replace(/["“”]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function shrinkPhrase(text) {
+  let out = sanitizeSegment(text)
+    .replace(/^[-*]\s*/, "")
+    .replace(/^\d+[.)]\s*/, "")
+    .replace(/^\s*[a-z]\)\s*/i, "")
+    .replace(/^\s*[:,-]\s*/, "")
+    .trim();
+
+  out = out.replace(/\s*[-]\s*/g, " - ").replace(/\s+/g, " ").trim();
+  out = out.replace(/[.;,]+$/, "");
+
+  if (out.length > 170) {
+    const cut = out.slice(0, 170);
+    const lastSpace = cut.lastIndexOf(" ");
+    out = (lastSpace > 70 ? cut.slice(0, lastSpace) : cut).trim();
+  }
+
+  return out;
+}
+
+function buildConciseAnswer(answer) {
+  const raw = String(answer || "").trim();
+  if (!raw) {
+    return "Kratak odgovor nije unet.";
+  }
+
+  const listLines = raw
+    .split(/\r?\n/)
+    .map((line) => shrinkPhrase(line))
+    .filter(Boolean);
+
+  if (listLines.length >= 2) {
+    return listLines.slice(0, 5).join("; ");
+  }
+
+  const flattened = sanitizeSegment(raw);
+  const sentenceParts = flattened
+    .split(/(?<=[.!?])\s+/)
+    .map((part) => shrinkPhrase(part))
+    .filter(Boolean);
+
+  if (sentenceParts.length === 0) {
+    return "Kratak odgovor nije unet.";
+  }
+
+  if (sentenceParts.length === 1) {
+    return sentenceParts[0];
+  }
+
+  const first = sentenceParts[0];
+  if (first.length < 55) {
+    return `${first}; ${sentenceParts[1]}`;
+  }
+
+  return first;
+}
+
+function normalizeQuestion(question) {
+  const originalLong = typeof question.long_answer === "string"
+    ? question.long_answer
+    : question.answer;
+  const longAnswer = String(originalLong || "").trim();
+  const providedShort = typeof question.short_answer === "string"
+    ? question.short_answer.trim()
+    : "";
+  const shortAnswer = providedShort || buildConciseAnswer(longAnswer);
+
+  return {
+    ...question,
+    answer: longAnswer,
+    long_answer: longAnswer,
+    short_answer: shortAnswer,
+  };
+}
+
+function buildUnifiedQuizSource(source) {
+  if (!source || !Array.isArray(source.categories)) {
+    return null;
+  }
+
+  const categories = source.categories.map((category) => {
+    const questions = Array.isArray(category.questions)
+      ? category.questions.map((question) => normalizeQuestion(question))
+      : [];
+
+    return {
+      ...category,
+      count: questions.length,
+      questions,
+    };
+  });
+
+  return {
+    ...source,
+    total_questions: categories.reduce((sum, category) => sum + category.count, 0),
+    categories,
+  };
+}
+
+if (rawFlashcardData) {
+  const unifiedSource = buildUnifiedQuizSource(rawFlashcardData);
+
+  if (unifiedSource) {
+    quizDefinitions.push({
+      id: "riso-2026",
+      title: "RISO kartice 2026",
+      source: unifiedSource,
+    });
+  }
+}
+
+let selectedQuizId = quizDefinitions[0]?.id ?? "";
+let currentQuiz = null;
+let data = [];
+let STORAGE_KEY = BASE_STORAGE_KEY;
 const KNOW_SOUND_FILE = "Duolingo Correct - QuickSounds.com.mp3";
 const ERROR_SOUND_FILE = "error.mp3";
 const CARD_CHANGE_SOUND_FILE = "card-change.mp3";
@@ -30,13 +168,167 @@ let activeQuestions = [];
 let activeCategory = null;
 let index = 0;
 let knownIds = new Set();
+let maybeIds = new Set();
 let unknownIds = new Set();
 let selectedCategoryName = "";
+let answerDisplayMode = ANSWER_MODE_SHORT;
 let feedbackAudioContext = null;
 let knowSound = null;
 let errorSound = null;
 let cardChangeSound = null;
 let isCardAnimating = false;
+
+function syncAnswerModeButtons() {
+  if (answerModeShortBtn) {
+    const isShort = answerDisplayMode === ANSWER_MODE_SHORT;
+    answerModeShortBtn.classList.toggle("is-active", isShort);
+    answerModeShortBtn.setAttribute("aria-pressed", String(isShort));
+  }
+
+  if (answerModeLongBtn) {
+    const isLong = answerDisplayMode === ANSWER_MODE_LONG;
+    answerModeLongBtn.classList.toggle("is-active", isLong);
+    answerModeLongBtn.setAttribute("aria-pressed", String(isLong));
+  }
+}
+
+function setAnswerDisplayMode(mode, shouldPersist = true) {
+  if (mode !== ANSWER_MODE_SHORT && mode !== ANSWER_MODE_LONG) {
+    return;
+  }
+
+  answerDisplayMode = mode;
+  syncAnswerModeButtons();
+
+  if (activeQuestions.length > 0) {
+    answerText.textContent = getAnswerText(activeQuestions[index]);
+  }
+
+  if (shouldPersist) {
+    saveProgress();
+  }
+}
+
+function getQuizQuestionCount(quiz) {
+  if (!quiz?.source) return 0;
+
+  if (Number.isInteger(quiz.source.total_questions)) {
+    return quiz.source.total_questions;
+  }
+
+  const categories = Array.isArray(quiz.source.categories) ? quiz.source.categories : [];
+  return categories.reduce((sum, cat) => sum + (Array.isArray(cat.questions) ? cat.questions.length : 0), 0);
+}
+
+function getQuizCategoryCount(quiz) {
+  return Array.isArray(quiz?.source?.categories) ? quiz.source.categories.length : 0;
+}
+
+function renderQuizPicker() {
+  if (!quizPicker) return;
+
+  if (!Array.isArray(quizDefinitions) || quizDefinitions.length === 0) {
+    quizPicker.innerHTML = '<p class="status">Trenutno nema dostupnih kvizova.</p>';
+    if (enterQuizBtn) {
+      enterQuizBtn.disabled = true;
+    }
+    return;
+  }
+
+  quizPicker.innerHTML = quizDefinitions
+    .map((quiz) => {
+      const questionCount = getQuizQuestionCount(quiz);
+      const categoryCount = getQuizCategoryCount(quiz);
+      const isActive = quiz.id === selectedQuizId ? " is-active" : "";
+
+      return `
+        <button class="quiz-card${isActive}" type="button" data-quiz-id="${quiz.id}">
+          <span class="quiz-card-title">${quiz.title}</span>
+          <span class="quiz-card-meta">${questionCount} pitanja · ${categoryCount} kategorija</span>
+        </button>
+      `;
+    })
+    .join("");
+
+  if (enterQuizBtn) {
+    enterQuizBtn.disabled = !selectedQuizId;
+  }
+}
+
+function selectQuiz(quizId) {
+  if (!quizDefinitions.some((quiz) => quiz.id === quizId)) {
+    return;
+  }
+
+  selectedQuizId = quizId;
+  renderQuizPicker();
+}
+
+function resetPracticeState() {
+  activeQuestions = [];
+  activeCategory = null;
+  index = 0;
+  knownIds = new Set();
+  maybeIds = new Set();
+  unknownIds = new Set();
+  selectedCategoryName = "";
+  isCardAnimating = false;
+}
+
+function enterSelectedQuiz() {
+  const quiz = quizDefinitions.find((item) => item.id === selectedQuizId) || null;
+  if (!quiz) return;
+
+  currentQuiz = quiz;
+  data = Array.isArray(quiz.source?.categories) ? quiz.source.categories : [];
+  STORAGE_KEY = `${BASE_STORAGE_KEY}_${quiz.id}`;
+
+  if (appTitle) {
+    appTitle.textContent = quiz.title;
+  }
+  if (appSubtitle) {
+    appSubtitle.textContent = "Izaberi kategoriju i koristi Kratko/Dugo toggle za prikaz odgovora.";
+  }
+
+  resetPracticeState();
+  setButtonsEnabled(false);
+  syncAnswerModeButtons();
+
+  if (startScreen) {
+    startScreen.classList.add("is-hidden");
+  }
+  if (appShell) {
+    appShell.classList.remove("is-hidden");
+  }
+
+  initCategoryPicker();
+  const restored = restoreProgress();
+
+  if ((!restored || activeQuestions.length === 0) && data.length > 0) {
+    loadCategoryByName(selectedCategoryName || data[0].name, true);
+  }
+
+  updateStats();
+
+  if (statusText) {
+    statusText.textContent = `Kviz: ${quiz.title}. Izaberi kategoriju za pocetak.`;
+  }
+}
+
+function goBackToMenu() {
+  saveProgress();
+  setButtonsEnabled(false);
+  flashcard.classList.remove("is-flipped");
+
+  if (appShell) {
+    appShell.classList.add("is-hidden");
+  }
+  if (startScreen) {
+    startScreen.classList.remove("is-hidden");
+  }
+
+  renderQuizPicker();
+}
 
 function playKnowSound() {
   try {
@@ -272,9 +564,11 @@ function saveProgress() {
   const snapshot = {
     selectedCategory: selectedCategoryName || null,
     activeCategory: activeCategory?.name ?? null,
+    answerDisplayMode,
     questionOrder: activeQuestions.map((q) => q.id),
     index,
     knownIds: [...knownIds],
+    maybeIds: [...maybeIds],
     unknownIds: [...unknownIds],
   };
 
@@ -300,6 +594,11 @@ function restoreProgress() {
   if (saved.selectedCategory && data.some((cat) => cat.name === saved.selectedCategory)) {
     selectedCategoryName = saved.selectedCategory;
   }
+
+  if (saved.answerDisplayMode === ANSWER_MODE_SHORT || saved.answerDisplayMode === ANSWER_MODE_LONG) {
+    answerDisplayMode = saved.answerDisplayMode;
+  }
+  syncAnswerModeButtons();
 
   if (!saved.activeCategory) {
     renderCategoryPicker();
@@ -328,6 +627,7 @@ function restoreProgress() {
   if (activeQuestions.length === 0) {
     index = 0;
     knownIds = new Set();
+    maybeIds = new Set();
     unknownIds = new Set();
     return true;
   }
@@ -345,6 +645,11 @@ function restoreProgress() {
     ? saved.unknownIds.filter((id) => validIds.has(id) && !knownIds.has(id))
     : [];
   unknownIds = new Set(restoredUnknown);
+
+  const restoredMaybe = Array.isArray(saved.maybeIds)
+    ? saved.maybeIds.filter((id) => validIds.has(id) && !knownIds.has(id) && !unknownIds.has(id))
+    : [];
+  maybeIds = new Set(restoredMaybe);
 
   renderCategoryPicker();
   setButtonsEnabled(true);
@@ -364,16 +669,28 @@ function shuffle(array) {
 }
 
 function setButtonsEnabled(enabled) {
-  [flipBtn, prevBtn, nextBtn, knowBtn, repeatBtn].forEach((btn) => {
+  [flipBtn, prevBtn, nextBtn, knowBtn, maybeBtn, repeatBtn].forEach((btn) => {
     btn.disabled = !enabled;
   });
   shuffleBtn.disabled = !enabled;
 }
 
 function getAnswerText(questionObj) {
-  if (questionObj.answer && questionObj.answer.trim()) {
-    return questionObj.answer;
+  const longAnswer = String(questionObj.long_answer || questionObj.answer || "").trim();
+  const shortAnswer = String(questionObj.short_answer || "").trim();
+
+  if (answerDisplayMode === ANSWER_MODE_LONG && longAnswer) {
+    return longAnswer;
   }
+
+  if (answerDisplayMode === ANSWER_MODE_SHORT && shortAnswer) {
+    return shortAnswer;
+  }
+
+  if (longAnswer) {
+    return longAnswer;
+  }
+
   return "Odgovor nije unet u bazi za ovo pitanje. Vezbaj usmeno: definisi pojam, navedi prednosti/mane i primer iz prakse.";
 }
 
@@ -403,6 +720,9 @@ function renderQuestionList() {
       if (knownIds.has(q.id)) {
         statusClass = " known";
         statusText = "✓";
+      } else if (maybeIds.has(q.id)) {
+        statusClass = " maybe";
+        statusText = "?";
       } else if (unknownIds.has(q.id)) {
         statusClass = " unknown";
         statusText = "✕";
@@ -435,7 +755,7 @@ function renderCard() {
   questionText.textContent = `${q.id}. ${q.question}`;
   answerText.textContent = getAnswerText(q);
   flashcard.classList.remove("is-flipped");
-  statusText.textContent = `Kategorija: ${activeCategory.name}`;
+  statusText.textContent = `Kategorija: ${activeCategory.name} | odgovor: ${answerDisplayMode === ANSWER_MODE_SHORT ? "kratko" : "dugo"}`;
   updateStats();
   renderQuestionList();
 }
@@ -611,6 +931,7 @@ function loadCategoryByName(categoryName, resetProgress = true) {
     activeQuestions = [];
     index = 0;
     knownIds = new Set();
+    maybeIds = new Set();
     unknownIds = new Set();
     renderCard();
     saveProgress();
@@ -621,6 +942,7 @@ function loadCategoryByName(categoryName, resetProgress = true) {
     activeQuestions = [...activeCategory.questions];
     index = 0;
     knownIds = new Set();
+    maybeIds = new Set();
     unknownIds = new Set();
   }
 
@@ -658,7 +980,22 @@ function isTypingTarget(target) {
 }
 
 function handleKeyboardShortcuts(event) {
+  const isStartScreenVisible = Boolean(startScreen && !startScreen.classList.contains("is-hidden"));
+  if (isStartScreenVisible) {
+    if (event.key === "Enter" && !enterQuizBtn?.disabled && !isTypingTarget(event.target)) {
+      event.preventDefault();
+      enterSelectedQuiz();
+    }
+    return;
+  }
+
   if (isTypingTarget(event.target)) return;
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    goBackToMenu();
+    return;
+  }
 
   if (event.key === "ArrowRight") {
     event.preventDefault();
@@ -695,15 +1032,33 @@ function handleKeyboardShortcuts(event) {
   }
 
   const lowerKey = event.key.toLowerCase();
-  if (lowerKey === "n") {
+  if (lowerKey === "b") {
     event.preventDefault();
     markKnown(true);
+    return;
+  }
+
+  if (lowerKey === "n") {
+    event.preventDefault();
+    markMaybe();
     return;
   }
 
   if (lowerKey === "m") {
     event.preventDefault();
     markKnown(false);
+    return;
+  }
+
+  if (lowerKey === "k") {
+    event.preventDefault();
+    setAnswerDisplayMode(ANSWER_MODE_SHORT);
+    return;
+  }
+
+  if (lowerKey === "l") {
+    event.preventDefault();
+    setAnswerDisplayMode(ANSWER_MODE_LONG);
   }
 }
 
@@ -725,10 +1080,12 @@ function markKnown(isKnown) {
   if (isKnown) {
     playKnowSound();
     knownIds.add(id);
+    maybeIds.delete(id);
     unknownIds.delete(id);
   } else {
     playErrorSound();
     knownIds.delete(id);
+    maybeIds.delete(id);
     unknownIds.add(id);
   }
 
@@ -736,6 +1093,21 @@ function markKnown(isKnown) {
   renderQuestionList();
   saveProgress();
   move(1, isKnown ? { showCorrectStamp: true } : { showWrongStamp: true });
+}
+
+function markMaybe() {
+  if (activeQuestions.length === 0) return;
+  const id = activeQuestions[index].id;
+
+  knownIds.delete(id);
+  maybeIds.add(id);
+  unknownIds.delete(id);
+
+  updateStats();
+  renderQuestionList();
+  saveProgress();
+  playCardChangeSound();
+  move(1);
 }
 
 function initCategoryPicker() {
@@ -752,6 +1124,24 @@ function initCategoryPicker() {
   renderCategoryPicker();
   statusText.textContent = "Podaci ucitani. Klikni kategoriju za vezbanje.";
 }
+
+quizPicker?.addEventListener("click", (event) => {
+  const target = event.target.closest(".quiz-card");
+  if (!target) return;
+
+  const quizId = target.dataset.quizId;
+  if (!quizId) return;
+
+  selectQuiz(quizId);
+});
+
+enterQuizBtn?.addEventListener("click", () => {
+  enterSelectedQuiz();
+});
+
+backToMenuBtn?.addEventListener("click", () => {
+  goBackToMenu();
+});
 
 categoryPicker?.addEventListener("click", (event) => {
   const target = event.target.closest(".category-chip");
@@ -785,7 +1175,14 @@ nextBtn.addEventListener("click", () => {
 });
 flipBtn.addEventListener("click", toggleFlip);
 knowBtn.addEventListener("click", () => markKnown(true));
+maybeBtn.addEventListener("click", markMaybe);
 repeatBtn.addEventListener("click", () => markKnown(false));
+answerModeShortBtn?.addEventListener("click", () => {
+  setAnswerDisplayMode(ANSWER_MODE_SHORT);
+});
+answerModeLongBtn?.addEventListener("click", () => {
+  setAnswerDisplayMode(ANSWER_MODE_LONG);
+});
 questionList?.addEventListener("click", (event) => {
   const target = event.target.closest(".question-item");
   if (!target) return;
@@ -801,12 +1198,11 @@ questionList?.addEventListener("click", (event) => {
 
 document.addEventListener("keydown", handleKeyboardShortcuts);
 
-setButtonsEnabled(false);
-initCategoryPicker();
-const restored = restoreProgress();
+renderQuizPicker();
+syncAnswerModeButtons();
 
-if (!restored && data.length > 0) {
-  loadCategoryByName(selectedCategoryName || data[0].name, true);
+if (quizDefinitions.length > 0) {
+  selectQuiz(selectedQuizId || quizDefinitions[0].id);
+} else if (statusText) {
+  statusText.textContent = "Nema dostupnih kvizova.";
 }
-
-updateStats();
